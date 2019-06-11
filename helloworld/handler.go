@@ -11,6 +11,27 @@ import (
 func Handle(req handler.Request) (handler.Response, error) {
 	var err error
 
+	name := string(req.Body)
+
+	age, errMsg := getAge(name)
+
+	if errMsg != "" {
+		return handler.Response{
+			Body:       []byte(errMsg),
+			StatusCode: http.StatusOK,
+		}, err
+
+	}
+	message := fmt.Sprintf("%s is %d years old", name, age)
+
+	return handler.Response{
+		Body:       []byte(message),
+		StatusCode: http.StatusOK,
+	}, err
+}
+
+func getAge(name string) (int, string) {
+
 	a := make(map[string]int)
 
 	a["Matt"] = 28
@@ -18,12 +39,10 @@ func Handle(req handler.Request) (handler.Response, error) {
 	a["Trevor"] = 27
 	a["Tom"] = 31
 
-	name := string(req.Body)
+	if val, ok := a[name]; ok {
+		return val, ""
+	}
 
-	message := fmt.Sprintf("%s is %d years old", name, a[name])
+	return 0, fmt.Sprintf("No entry in our file for the name: %s", name)
 
-	return handler.Response{
-		Body:       []byte(message),
-		StatusCode: http.StatusOK,
-	}, err
 }
